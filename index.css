@@ -1,0 +1,119 @@
+
+@font-face {
+    font-family: HussarBold;
+    src: url(HussarBold.otf);
+}
+body{
+	font-family:Georgia;
+	margin:0px;
+	background-color:#A0E7FC;
+}
+h1{
+	font-size:50px;
+}
+h2{
+		font-family:HussarBold;
+
+	margin-top:0px;
+	font-size:30px;
+}
+a:hover{
+	color:yellow;
+}
+a:active{
+	color:red;
+}
+.circle{
+	opacity:.5;   
+    position:relative;
+    border-radius:100px;
+    background-color:green;
+    float:left;
+}
+
+.clear{
+	clear:both;
+}
+.fixed{
+	position:fixed;
+}
+
+#expandWidth{
+	height:180px;
+	background-color: #32908F;
+	margin:auto;
+	width:0%;
+	transition-property: width;
+	transition-duration:5s;
+}
+#expandWidthFade{
+	display:none;
+}
+
+#expandWidthFade h1, #expandWidthFade p{
+	font-family:HussarBold;
+
+	margin-top:0px;
+	text-align:center;
+	color:white;
+}
+#gameWindow{
+	display: none;
+	float:left;
+	width:301px;
+	margin:20px;
+}
+#ballGame{
+	overflow: none;
+	height:450px;
+	width:300px;
+	border:1px solid;
+}
+.gameDes{
+	width:300px;
+	border:1px solid #444;
+	color:#444;
+}
+
+.tabHolder{
+	display:none;
+	padding:20px;
+	float:left;
+	width:60%;
+	min-height:200px;
+}
+#information > ul{
+	list-style:square;
+}
+#aboutMe > ul{
+	list-style: none;
+	padding-left:0px;
+}
+#passions > p{
+	margin-left:10px;
+}
+ul{
+	margin-top:10px;
+}
+
+@media only screen and (max-width: 710px) {
+  #slideDown {
+    min-height:1500px;
+  }
+}
+.intro h2, .intro p, .intro li{
+	color:#444;
+}
+.nav-tabs > li > a:hover {
+	background-color:#32908F;
+}
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  background-color: #32908F;
+  color:white;
+ 
+} 
+.nav-tabs{
+	font-size:13pt;
+}
