@@ -126,6 +126,8 @@ function BallGroup(divId, columnsOfBalls){
 		var localMousePos = arrayOperation(self.mouseEventHandler.currentPos, 
 			self.globalPosToLocalPos, "subtract");
 
+		console.log(self.globalPosToLocalPos +" + "+ self.mouseEventHandler.currentPos + " = " + localMousePos);
+
 		var distance = arrayOperation(center, localMousePos, "subtract");
 
 		var squaredDistance = distance[0]*distance[0] + distance[1]*distance[1];
@@ -194,6 +196,7 @@ function BallGroup(divId, columnsOfBalls){
 	this.initialPositions = this.generatePostionArray();
 	this.positions = this.generatePostionArray();
 	this.globalPosToLocalPos = [$(divId).offset().left, $(divId).offset().top];
+	console.log(this.globalPosToLocalPos);
 	this.ballRadius = this.columnAndRowSize/2;
 	// this array takes a ball position and converts it to the center coordinates
 	this.topLeftCoordinatesToCenterCoordinates = [this.ballRadius, this.ballRadius];
@@ -215,7 +218,6 @@ $(document).ready(function(){
 	// Sexy and beautiful animations incoming!
 	$("#expandWidth").css('width', '100%');
 	$("#expandWidthFade").delay(300).fadeIn(500);
-	$("#gameWindow").delay(600).fadeIn(500);
 	$(".tabHolder").delay(600).fadeIn(500);
 	var ballGroup = new BallGroup("#ballGame", 2);
 
