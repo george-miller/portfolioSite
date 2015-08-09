@@ -12,7 +12,7 @@ h1{
 	font-size:50px;
 }
 h2{
-		font-family:HussarBold;
+	font-family:HussarBold;
 
 	margin-top:0px;
 	font-size:30px;
@@ -44,7 +44,7 @@ a:active{
 	margin:auto;
 	width:0%;
 	transition-property: width;
-	transition-duration:5s;
+	transition-duration:1s;
 }
 #expandWidthFade{
 	display:none;

@@ -75,6 +75,15 @@
 	<script src="jquery.js"></script>
 	<script src="bootstrap/bootstrap.min.js"></script>
 	<script src="index.js"></script>
+	<script>
+	$(document).ready(function(){
+		// Sexy and beautiful animations incoming!
+		$("#expandWidth").css('width', '100%');
+		$("#expandWidthFade").delay(300).fadeIn(500);
+		$(".tabHolder").delay(600).fadeIn(500);
+		var ballGroup = new BallGroup("#ballGame", 2);
+	});
+	</script>
 </body>
 
 </html>

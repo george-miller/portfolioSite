@@ -60,19 +60,36 @@ function MouseEventHandler(){
 
 // CLASS for ball groups
 function BallGroup(divId, columnsOfBalls){
+	// Constructor call at bottom
+
 	// this is a workaround so we can access
 	// class variables in class functions
 	var self = this;
-	assert(typeof(divId), "string");
-	this.divId = divId;
-	assert(typeof(columnsOfBalls), "number");
-	this.columnsOfBalls = columnsOfBalls;
 
-	this.columnAndRowSize = $(divId).width()/columnsOfBalls;
-	this.rowsOfBalls = Math.floor($(divId).height()/this.columnAndRowSize);
+    this.constructor = function(divId, columnsOfBalls){
+		assert(typeof(divId), "string");
+		self.divId = divId;
+		assert(typeof(columnsOfBalls), "number"); 
+		self.columnsOfBalls = columnsOfBalls-1; // So we can call generateNextLevel
 
-	this.mouseEventHandler = new MouseEventHandler();
-    
+		self.mouseEventHandler = new MouseEventHandler();
+
+		self.baseBallHtmlId = "ball";
+		// We need both initialPositions and positions so that
+		// we can compare computed position to initialPosition
+		// and set the top and left css position elements
+		self.globalPosToLocalPos = [$(divId).offset().left, $(divId).offset().top];
+		// this array takes a ball position and converts it to the center coordinates
+		// We save self value so that we never have to run 
+		// Math.sqrt when computing distances
+		// This array is used to determine the drag of each ball
+		self.ballDragFactors = [];
+
+		self.addHoverEventListener();
+		
+		self.generateNextLevel();
+    }
+
 	this.fillHTMLContainerWithBalls = function(container){
 		assert(typeof(container), "string");
 		$(container).empty();
@@ -87,6 +104,12 @@ function BallGroup(divId, columnsOfBalls){
 				"px;'></div>");
 		}
 	}
+	this.handleMouseMoveEvent = function(event){
+		self.mouseEventHandler.handleMoveEvent(event);
+		if (self.mouseEventHandler.deltaPos != null){
+			self.moveBalls();
+		}
+	}
 
 	this.moveBalls = function(){
 		for (var i = 0; i < self.numberOfBalls; i++){
@@ -98,35 +121,44 @@ function BallGroup(divId, columnsOfBalls){
 	this.moveBall = function(i){
 		var center = arrayOperation(self.positions[i], 
 			self.topLeftCoordinatesToCenterCoordinates, "add");
-		if (self.isMouseOverBall(i, center) && self.mouseEventHandler.deltaPos != null){
-		 	self.positions[i] = [
-		 		self.positions[i][0]+self.mouseEventHandler.deltaPos[0]/self.ballDragFactors[i],
-		 		self.positions[i][1]+self.mouseEventHandler.deltaPos[1]/self.ballDragFactors[i]
-		 	];
+		if (self.isMouseOverBall(i, center)){
 
+			self.updatePosition(i);
+		 	
 		 	if (self.isBallOffScreen(i, center)){
-		 		$("#"+self.baseBallHtmlId+i).css({opacity:0,});
-		 		self.positions[i] = false;
-		 		self.ballsOffScreen++;
+
+		 		self.removeBallFromList(i);
 
 		 		if (self.ballsOffScreen >= self.numberOfBalls){
 		 			self.generateNextLevel();
 		 		}
 		 	}
 		 	else{
-		     	$("#"+self.baseBallHtmlId+i).css({
-		    		top:  Math.round(self.positions[i][1]) - self.initialPositions[i][1],
-		    		left: Math.round(self.positions[i][0]) - self.initialPositions[i][0]
-		    	});
+		     	self.updateCSS(i);
 		 	}
 		}
+	}
+	this.updatePosition = function(i){
+		self.positions[i] = [
+	 		self.positions[i][0]+self.mouseEventHandler.deltaPos[0]/self.ballDragFactors[i],
+	 		self.positions[i][1]+self.mouseEventHandler.deltaPos[1]/self.ballDragFactors[i]
+	 	];
+	}
+	this.updateCSS = function(i){
+		$("#"+self.baseBallHtmlId+i).css({
+    		top:  Math.round(self.positions[i][1]) - self.initialPositions[i][1],
+    		left: Math.round(self.positions[i][0]) - self.initialPositions[i][0]
+    	});
+	}
+	this.removeBallFromList = function(i){
+		$("#"+self.baseBallHtmlId+i).css({opacity:0,});
+ 		self.positions[i] = false;
+ 		self.ballsOffScreen++;
 	}
 	this.isMouseOverBall = function(i, center){
 
 		var localMousePos = arrayOperation(self.mouseEventHandler.currentPos, 
 			self.globalPosToLocalPos, "subtract");
-
-		console.log(self.globalPosToLocalPos +" + "+ self.mouseEventHandler.currentPos + " = " + localMousePos);
 
 		var distance = arrayOperation(center, localMousePos, "subtract");
 
@@ -148,9 +180,9 @@ function BallGroup(divId, columnsOfBalls){
 
 	this.addHoverEventListener = function(){
 		$(self.divId).mousemove(function(event){
-		  	self.mouseEventHandler.handleMoveEvent(event);
-		  	self.moveBalls();
+			self.handleMouseMoveEvent(event);
 		});
+
 		$(self.divId).mouseleave(function(event){
 		  	self.mouseEventHandler.currentPos = null;
 		  	self.mouseEventHandler.prevPos = null;
@@ -167,9 +199,10 @@ function BallGroup(divId, columnsOfBalls){
 		}
 		return positions;
 	}
+
 	this.generateNextLevel = function(){
 		$(self.divId).empty();
-		// See comments below for defenitions of class variables
+		// See comments in the constructor for defenitions of class variables
 		self.columnsOfBalls++;
 		self.columnAndRowSize = $(divId).width()/self.columnsOfBalls;
 		self.rowsOfBalls = Math.floor($(divId).height()/self.columnAndRowSize);
@@ -186,41 +219,6 @@ function BallGroup(divId, columnsOfBalls){
 		}
 		self.fillHTMLContainerWithBalls(self.divId);
 	}
-
-	this.ballsOffScreen = 0;
-	this.baseBallHtmlId = "ball";
-	this.numberOfBalls = this.columnsOfBalls * this.rowsOfBalls;
-	// We need both initialPositions and positions so that
-	// we can compare computed position to initialPosition
-	// and set the top and left css position elements
-	this.initialPositions = this.generatePostionArray();
-	this.positions = this.generatePostionArray();
-	this.globalPosToLocalPos = [$(divId).offset().left, $(divId).offset().top];
-	console.log(this.globalPosToLocalPos);
-	this.ballRadius = this.columnAndRowSize/2;
-	// this array takes a ball position and converts it to the center coordinates
-	this.topLeftCoordinatesToCenterCoordinates = [this.ballRadius, this.ballRadius];
-	// We save this value so that we never have to run 
-	// Math.sqrt when computing distances
-	this.squaredRadius = this.ballRadius*this.ballRadius;
-	// This array is used to determine the drag of each ball
-	this.ballDragFactors = [];
-	for (var i = 0; i < this.numberOfBalls; i++){
-		this.ballDragFactors.push(1 + Math.random()*6);
-	}
-
-	this.addHoverEventListener();
-	this.fillHTMLContainerWithBalls(this.divId);
+	// Create an object
+	this.constructor(divId, columnsOfBalls);	
 }
-
-$(document).ready(function(){
-
-	// Sexy and beautiful animations incoming!
-	$("#expandWidth").css('width', '100%');
-	$("#expandWidthFade").delay(300).fadeIn(500);
-	$(".tabHolder").delay(600).fadeIn(500);
-	var ballGroup = new BallGroup("#ballGame", 2);
-
-});
-     
-    
