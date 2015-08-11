@@ -134,7 +134,7 @@ function BallGroup(divId, columnsOfBalls){
 		 		}
 		 	}
 		 	else{
-		     	self.updateCSS(i);
+		     	self.updateCssPosition(i);
 		 	}
 		}
 	}
@@ -144,7 +144,7 @@ function BallGroup(divId, columnsOfBalls){
 	 		self.positions[i][1]+self.mouseEventHandler.deltaPos[1]/self.ballDragFactors[i]
 	 	];
 	}
-	this.updateCSS = function(i){
+	this.updateCssPosition = function(i){
 		$("#"+self.baseBallHtmlId+i).css({
     		top:  Math.round(self.positions[i][1]) - self.initialPositions[i][1],
     		left: Math.round(self.positions[i][0]) - self.initialPositions[i][0]

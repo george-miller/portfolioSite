@@ -27,4 +27,13 @@ QUnit.test("MouseEventHandler", function(assert){
 	assert.deepEqual(mouseEventHandler.deltaPos, null);
 });
 
-//QUnit.test("", function(assert){});
+$(document).ready(function(){
+	var ballGroup = new BallGroup("#test", 4);
+
+	QUnit.module("BallGroup");
+	QUnit.test("test", function(assert){
+		ok(ballGroup.divId, "#test");
+	});
+
+
+});
