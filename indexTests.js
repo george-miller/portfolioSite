@@ -3,6 +3,7 @@ QUnit.test("arrayOperation", function(assert){
 	assert.deepEqual([1, 2, 3], arrayOperation([2, 5, 2], [1, 3, -1], 'subtract'));
 });
 QUnit.test("MouseEventHandler", function(assert){
+    // Simulate moving the mouse and test the results
 	var mouseEventHandler = new MouseEventHandler();
 	mouseEventHandler.handleMoveEvent({
 		pageX : 10,
@@ -31,9 +32,11 @@ $(document).ready(function(){
 	var ballGroup = new BallGroup("#test", 4);
 
 	QUnit.module("BallGroup");
-	QUnit.test("test", function(assert){
-		ok(ballGroup.divId, "#test");
-	});
+    QUnit.test("testFillHtmlContainerWithBalls", function(assert){
+        ballGroup.fillHtmlContainerWithBalls(ballGroup.divId);
 
+        ok($(ballGroup.divId).children().size() == ballGroup.numberOfBalls, 
+                "actual number of balls equal to ballGroup.numberOfBalls");
+    });
 
 });

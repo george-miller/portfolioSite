@@ -90,7 +90,36 @@ function BallGroup(divId, columnsOfBalls){
 		self.generateNextLevel();
     }
 
-	this.fillHTMLContainerWithBalls = function(container){
+	this.generateNextLevel = function(){
+		$(self.divId).empty();
+		// See comments in the constructor for defenitions of class variables
+        // columnsOfBalls is the only thing that changes per level.  Everything else
+        // is built off of the value of columnsOfBalls
+		self.columnsOfBalls++;
+        self.setClassVariablesFromColumnsOfBalls();
+
+		self.ballsOffScreen = 0;
+		self.ballDragFactors = [];
+
+        // create a random array of drag factors for the new level
+		for (var i = 0; i < self.numberOfBalls; i++){
+			self.ballDragFactors.push(1 + Math.random()*3);
+		}
+		self.fillHtmlContainerWithBalls(self.divId);
+	}
+
+    this.setClassVariablesFromColumnsOfBalls = function(){
+        self.columnAndRowSize = $(divId).width()/self.columnsOfBalls;
+		self.rowsOfBalls = Math.floor($(divId).height()/self.columnAndRowSize);
+        self.numberOfBalls = self.columnsOfBalls * self.rowsOfBalls;
+		self.positions = self.generatePostionArray();
+		self.initialPositions = self.generatePostionArray();
+		self.ballRadius = self.columnAndRowSize/2;
+		self.topLeftCoordinatesToCenterCoordinates = [self.ballRadius, self.ballRadius];
+		self.squaredRadius = self.ballRadius*self.ballRadius;
+    }
+
+	this.fillHtmlContainerWithBalls = function(container){
 		assert(typeof(container), "string");
 		$(container).empty();
 		for (var i = 0; i < self.numberOfBalls; i++) {
@@ -104,7 +133,19 @@ function BallGroup(divId, columnsOfBalls){
 				"px;'></div>");
 		}
 	}
-	this.handleMouseMoveEvent = function(event){
+    
+    this.addHoverEventListener = function(){
+		$(self.divId).mousemove(function(event){
+			self.handleMouseMoveEvent(event);
+		});
+
+		$(self.divId).mouseleave(function(event){
+		  	self.mouseEventHandler.currentPos = null;
+		  	self.mouseEventHandler.prevPos = null;
+		});
+	}
+	
+    this.handleMouseMoveEvent = function(event){
 		self.mouseEventHandler.handleMoveEvent(event);
 		if (self.mouseEventHandler.deltaPos != null){
 			self.moveBalls();
@@ -121,11 +162,11 @@ function BallGroup(divId, columnsOfBalls){
 	this.moveBall = function(i){
 		var center = arrayOperation(self.positions[i], 
 			self.topLeftCoordinatesToCenterCoordinates, "add");
-		if (self.isMouseOverBall(i, center)){
+		if (self.isMouseOverBall(center)){
 
 			self.updatePosition(i);
 		 	
-		 	if (self.isBallOffScreen(i, center)){
+		 	if (self.isBallOffScreen(center)){
 
 		 		self.removeBallFromList(i);
 
@@ -138,24 +179,8 @@ function BallGroup(divId, columnsOfBalls){
 		 	}
 		}
 	}
-	this.updatePosition = function(i){
-		self.positions[i] = [
-	 		self.positions[i][0]+self.mouseEventHandler.deltaPos[0]/self.ballDragFactors[i],
-	 		self.positions[i][1]+self.mouseEventHandler.deltaPos[1]/self.ballDragFactors[i]
-	 	];
-	}
-	this.updateCssPosition = function(i){
-		$("#"+self.baseBallHtmlId+i).css({
-    		top:  Math.round(self.positions[i][1]) - self.initialPositions[i][1],
-    		left: Math.round(self.positions[i][0]) - self.initialPositions[i][0]
-    	});
-	}
-	this.removeBallFromList = function(i){
-		$("#"+self.baseBallHtmlId+i).css({opacity:0,});
- 		self.positions[i] = false;
- 		self.ballsOffScreen++;
-	}
-	this.isMouseOverBall = function(i, center){
+
+	this.isMouseOverBall = function(center){
 
 		var localMousePos = arrayOperation(self.mouseEventHandler.currentPos, 
 			self.globalPosToLocalPos, "subtract");
@@ -170,7 +195,7 @@ function BallGroup(divId, columnsOfBalls){
 		return false;
 	}
 
-	this.isBallOffScreen = function(i, center){
+	this.isBallOffScreen = function(center){
 		if (center[0] > $(self.divId).width() || center[0] < 0 
 			|| center[1] > $(self.divId).height() || center[1] < 0){
 			return true;
@@ -178,15 +203,24 @@ function BallGroup(divId, columnsOfBalls){
 		return false;
 	}
 
-	this.addHoverEventListener = function(){
-		$(self.divId).mousemove(function(event){
-			self.handleMouseMoveEvent(event);
-		});
+	this.updatePosition = function(i){
+		self.positions[i] = [
+	 		self.positions[i][0]+self.mouseEventHandler.deltaPos[0]/self.ballDragFactors[i],
+	 		self.positions[i][1]+self.mouseEventHandler.deltaPos[1]/self.ballDragFactors[i]
+	 	];
+	}
 
-		$(self.divId).mouseleave(function(event){
-		  	self.mouseEventHandler.currentPos = null;
-		  	self.mouseEventHandler.prevPos = null;
-		});
+	this.updateCssPosition = function(i){
+		$("#"+self.baseBallHtmlId+i).css({
+    		top:  Math.round(self.positions[i][1]) - self.initialPositions[i][1],
+    		left: Math.round(self.positions[i][0]) - self.initialPositions[i][0]
+    	});
+	}
+
+	this.removeBallFromList = function(i){
+		$("#"+self.baseBallHtmlId+i).css({opacity:0,});
+ 		self.positions[i] = false;
+ 		self.ballsOffScreen++;
 	}
 
 	this.generatePostionArray = function(){
@@ -200,25 +234,6 @@ function BallGroup(divId, columnsOfBalls){
 		return positions;
 	}
 
-	this.generateNextLevel = function(){
-		$(self.divId).empty();
-		// See comments in the constructor for defenitions of class variables
-		self.columnsOfBalls++;
-		self.columnAndRowSize = $(divId).width()/self.columnsOfBalls;
-		self.rowsOfBalls = Math.floor($(divId).height()/self.columnAndRowSize);
-		self.ballsOffScreen = 0;
-		self.numberOfBalls = self.columnsOfBalls * self.rowsOfBalls;
-		self.positions = self.generatePostionArray();
-		self.initialPositions = self.generatePostionArray();
-		self.ballRadius = self.columnAndRowSize/2;
-		self.topLeftCoordinatesToCenterCoordinates = [self.ballRadius, self.ballRadius];
-		self.squaredRadius = self.ballRadius*self.ballRadius;
-		self.ballDragFactors = [];
-		for (var i = 0; i < self.numberOfBalls; i++){
-			self.ballDragFactors.push(1 + Math.random()*3);
-		}
-		self.fillHTMLContainerWithBalls(self.divId);
-	}
 	// Create an object
-	this.constructor(divId, columnsOfBalls);	
+	this.constructor(divId, columnsOfBalls);
 }
