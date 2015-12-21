@@ -50,7 +50,7 @@ a:active{
 	display:none;
 }
 
-#expandWidthFade h1, #expandWidthFade p{
+#expandWidthFade h1, #expandWidthFade h3{
 	font-family:HussarBold;
 
 	margin-top:0px;
